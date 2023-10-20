@@ -1,4 +1,11 @@
 /* eslint-disable no-alert */
+/**
+ * Fetches all users from https://jsonplaceholder.typicode.com/users
+ * @async
+ * @function
+ * @returns {Promise<Array>} - An array of user objects
+ * @throws {Error} - If the response status is not ok
+ */
 const getAllUsers = async () => {
     try {
         const response = await fetch('https://jsonplaceholder.typicode.com/users', {
@@ -14,6 +21,13 @@ const getAllUsers = async () => {
     }
 }
 
+/**
+ * Fetches all todos from https://jsonplaceholder.typicode.com/todos
+ * @async
+ * @function
+ * @returns {Promise<Array>} - An array of todo objects
+ * @throws {Error} - If the response status is not ok
+ */
 const getAllTodos = async () => {
     try {
         const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
@@ -29,6 +43,14 @@ const getAllTodos = async () => {
     }
 }
 
+/**
+ * Creates a new todo on https://jsonplaceholder.typicode.com/todos
+ * @async
+ * @function
+ * @param {Object} newTodo - The todo object to be created
+ * @returns {Promise<Object>} - The created todo object
+ * @throws {Error} - If the response status is not ok
+ */
 const createTodo = async (newTodo) => {
     try {
         const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
@@ -48,6 +70,14 @@ const createTodo = async (newTodo) => {
     }
 }
 
+/**
+ * Updates the status of a todo on https://jsonplaceholder.typicode.com/todos
+ * @async
+ * @function
+ * @param {Object} updatedTodo - The todo object to be updated
+ * @returns {Promise<Object>} - The updated todo object
+ * @throws {Error} - If the response status is not ok
+ */
 const updateTodoStatus = async (updatedTodo) => {
     try {
         const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${updatedTodo.id}`, {
@@ -67,6 +97,14 @@ const updateTodoStatus = async (updatedTodo) => {
     }
 }
 
+/**
+ * Deletes a todo from https://jsonplaceholder.typicode.com/todos
+ * @async
+ * @function
+ * @param {number} todoId - The id of the todo to be deleted
+ * @returns {Promise<Object>} - An empty object
+ * @throws {Error} - If the response status is not ok
+ */
 const deleteTodo = async (todoId) => {
     try {
         const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${todoId}`, {
@@ -88,6 +126,14 @@ const deleteTodo = async (todoId) => {
 // eslint-disable-next-line no-restricted-globals
 const getUuid = () => self.crypto.randomUUID()
 
+/**
+ * Deletes a todo element from the DOM and the server
+ * @async
+ * @function
+ * @param {Object} todo - The todo object to be deleted
+ * @param {string} uuid - The unique identifier of the todo element
+ * @returns {Promise<void>}
+ */
 const deleteTodoElement = async (todo, uuid) => {
     const response = await deleteTodo(todo.id)
     if (response) {
@@ -97,6 +143,11 @@ const deleteTodoElement = async (todo, uuid) => {
     }
 }
 
+/**
+ * Returns an SVG element for an X mark
+ * @function
+ * @returns {HTMLDivElement} - A div element containing an SVG xmark element
+ */
 const returnXmark = () => {
     const div = document.createElement('div')
     const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
@@ -110,8 +161,15 @@ const returnXmark = () => {
     return div
 }
 
+/**
+ * Changes the completed status of a todo on the server
+ * @async
+ * @function
+ * @param {Event} e - The click event
+ * @param {Object} todo - The todo object to be updated
+ * @returns {Promise<void>}
+ */
 const changeCompletedStatus = async (e, todo) => {
-    // console.log(e.target.dataset.todoId)
     const checkbox = e.target
     checkbox.disabled = true
     const updatedTodo = await updateTodoStatus({ ...todo, completed: checkbox.checked })
@@ -121,9 +179,16 @@ const changeCompletedStatus = async (e, todo) => {
         return
     }
     checkbox.disabled = false
-    // console.log(updatedTodo)
 }
 
+/**
+ * Creates a todo element and appends it to the DOM
+ * @function
+ * @param {Object} todo - The todo object to be displayed
+ * @param {string} selectedUserName - The name of the user who created the todo
+ * @param {boolean} [prepend=false] - Whether to prepend the element to the list
+ * @returns {void}
+ */
 const createTodoElement = (todo, selectedUserName, prepend = false) => {
     const uuid = getUuid()
     const todoList = document.querySelector('#todo-list')
@@ -155,6 +220,13 @@ const createTodoElement = (todo, selectedUserName, prepend = false) => {
     todoList.appendChild(todoItem)
 }
 
+/**
+ * Displays all todos on the page
+ * @function
+ * @param {Array} [todos=[]] - An array of todo objects
+ * @param {Array} [users=[]] - An array of user objects
+ * @returns {void}
+ */
 const displayAllTodos = (todos = [], users = []) => {
     todos.forEach((todo) => {
         const selectedUserName = users.filter((user) => user?.id === todo?.userId)[0]?.name
@@ -162,6 +234,15 @@ const displayAllTodos = (todos = [], users = []) => {
     })
 }
 
+/**
+ * Adds users to the options of a select element.
+ *
+ * @function
+ * @param {Array} users - An array of user objects.
+ * @param {string} users[].name - The name of the user.
+ * @param {number} users[].id - The ID of the user.
+ * @returns {void}
+ */
 const addUsersToOptions = (users = []) => {
     const userTodo = document.querySelector('#user-todo')
     users.forEach((user) => {
@@ -172,11 +253,16 @@ const addUsersToOptions = (users = []) => {
     })
 }
 
+/**
+ * Runs the application.
+ *
+ * @function
+ * @async
+ * @returns {void}
+ */
 const run = async () => {
     const todos = await getAllTodos()
-    // console.log(todos)
     const users = await getAllUsers()
-    // console.log(users)
     displayAllTodos(todos, users)
     addUsersToOptions(users)
 
@@ -201,7 +287,6 @@ const run = async () => {
             title: newTodoInput.value,
         })
         if (newTodo) {
-            // console.log(newTodo)
             const userName = users.filter((user) => user?.id === newTodo?.userId)[0]?.name
             createTodoElement(newTodo, userName, true)
             newTodoInput.value = ''
